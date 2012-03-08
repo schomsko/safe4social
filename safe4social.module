@@ -1,0 +1,408 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function safe4social_menu() {
+  $items = array();
+  $items['admin/settings/safe4social'] = array(
+    'title' => t('Safe4Social'),
+    'description' => t('Global options for Safe4Social'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('safe4social_admin'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+  return $items;
+}
+
+
+
+/**
+ * Form constructor of the global safe4social administration form
+ *
+ * Some fieldnames have certain wordings because they result in javascript settings
+ */
+function safe4social_admin() {
+  $s = Safe4SocialSettings::get();
+  $form = array();
+
+  $form['outputtype'] = array('#type' => 'fieldset', '#title' => t('Theming'), '#tree' => TRUE);
+  $form['outputtype']['outputtypeselect'] = array('#type' => 'select',
+      '#title' => t('Type of theming'), '#default_value' => $s['outputtype'], 
+      '#options' => array('fullnode_and_teaser' => t('Fullnode and teaser'),
+                        'fullnode_only' => t('Fullnode only'), 
+                        'theme_manually' => t('Theme manually')),
+      '#description' => 'if you choose "Theme manually" you have to include "$node->safe4social" in your node.tpl.php');
+
+  $form['gen'] = array('#type' => 'fieldset', '#title' => t('Generell settings'), '#tree' => TRUE);
+  $form['gen']['info_link'] = array('#type' => 'textfield', '#title' => t('Link to details of privacy policy'), 
+      '#default_value' => $s['js_other_settings']['info_link']);
+  $form['gen']['txt_help'] = array('#type' => 'textfield', '#title' => t('Mouseover text of the "i"-icon'), 
+      '#default_value' => $s['js_other_settings']['txt_help']);
+  $form['gen']['settings_perma'] = array('#type' => 'textfield', '#title' => t('Heading of the settings menu'), 
+      '#default_value' => $s['js_other_settings']['settings_perma']);
+  $form['gen']['cookie_expires'] = array('#type' => 'textfield', '#title' => t('Cookie expires'), 
+      '#default_value' => $s['js_other_settings']['cookie_expires']);
+  $form['gen']['css_path'] = array('#type' => 'textfield', '#title' => t('CSS file'), 
+      '#default_value' => $s['js_other_settings']['css_path']);
+
+  $form['facebook'] = array('#type' => 'fieldset', '#title' => t('Facebook'), '#tree' => TRUE,
+      '#collapsible' => TRUE,'#collapsed' => TRUE);
+  $form['facebook']['status'] = array('#type' => 'select', '#title' => t('Status'),
+      '#default_value' => $s['facebook']['status'], 
+      '#options' => array('on'=>'on', 'off'=>'off'));
+  $form['facebook']['dummy_img'] = array('#type' => 'textfield', '#title' => t('Dummy Image'),
+      '#default_value' => $s['facebook']['dummy_img']);
+  $form['facebook']['txt_info'] = array('#type' => 'textfield', '#title' => t('Text info'),
+      '#default_value' => $s['facebook']['txt_info']);
+  $form['facebook']['txt_fb_off'] = array('#type' => 'textfield', '#title' => t('Text off'),
+      '#default_value' => $s['facebook']['txt_fb_off']);
+  $form['facebook']['txt_fb_on'] = array('#type' => 'textfield', '#title' => t('Text on'),
+      '#default_value' => $s['facebook']['txt_fb_on']);
+  $form['facebook']['perma_option'] = array('#type' => 'select', '#title' => t('Perma option'),
+      '#default_value' => $s['facebook']['perma_option'],
+      '#options' => array('on'=>'on', 'off'=>'off'));
+  $form['facebook']['display_name'] = array('#type' => 'textfield', '#title' => t('Display name'),
+      '#default_value' => $s['facebook']['display_name']);
+  $form['facebook']['referrer_track'] = array('#type' => 'textfield', '#title' => t('Referrer track'),
+      '#default_value' => $s['facebook']['referrer_track']);
+  $form['facebook']['language'] = array('#type' => 'textfield', '#title' => t('Language'),
+      '#default_value' => $s['facebook']['language']);
+  $form['facebook']['action'] = array('#type' => 'select', '#title' => t('Action'),
+      '#default_value' => $s['facebook']['action'], 
+      '#options' => array('like'=>'like', 'recommend'=>'recommend'));
+
+  $form['twitter'] = array('#type' => 'fieldset', '#title' => t('Twitter'), '#tree' => TRUE,
+      '#collapsible' => TRUE, '#collapsed' => TRUE);
+  $form['twitter']['status'] = array('#type' => 'select', '#title' => t('Status'),
+      '#default_value' => $s['twitter']['status'],
+      '#options' => array('on'=>'on', 'off'=>'off'));
+  $form['twitter']['dummy_img'] = array('#type' => 'textfield', '#title' => t('Dummy Image'),
+      '#default_value' => $s['twitter']['dummy_img']);
+  $form['twitter']['txt_info'] = array('#type' => 'textfield', '#title' => t('Text info'),
+      '#default_value' => $s['twitter']['txt_info']);
+  $form['twitter']['txt_twitter_off'] = array('#type' => 'textfield', '#title' => t('Text off'),
+      '#default_value' => $s['twitter']['txt_twitter_off']);
+  $form['twitter']['txt_twitter_on'] = array('#type' => 'textfield', '#title' => t('Text on'),
+      '#default_value' => $s['twitter']['txt_twitter_on']);
+  $form['twitter']['perma_option'] = array('#type' => 'select', '#title' => t('Perma option'),
+      '#default_value' => $s['twitter']['perma_option'],
+      '#options' => array('on'=>'on', 'off'=>'off'));
+  $form['twitter']['display_name'] = array('#type' => 'textfield', '#title' => t('Display name'),
+      '#default_value' => $s['twitter']['display_name']);
+  $form['twitter']['referrer_track'] = array('#type' => 'textfield', '#title' => t('Referrer track'),
+      '#default_value' => $s['twitter']['referrer_track']);
+  $form['twitter']['language'] = array('#type' => 'textfield', '#title' => t('Language'),
+      '#default_value' => $s['twitter']['language']);
+  
+  $form['google'] = array('#type' => 'fieldset', '#title' => t('Google'), '#tree' => TRUE,
+      '#collapsible' => TRUE, '#collapsed' => TRUE);
+  $form['google']['status'] = array('#type' => 'select', '#title' => t('Status'),
+      '#default_value' => $s['google']['status'],
+      '#options' => array('on'=>'on', 'off'=>'off'));
+  $form['google']['dummy_img'] = array('#type' => 'textfield', '#title' => t('Dummy Image'),
+      '#default_value' => $s['google']['dummy_img']);
+  $form['google']['txt_info'] = array('#type' => 'textfield', '#title' => t('Text info'),
+      '#default_value' => $s['google']['txt_info']);
+  $form['google']['txt_gplus_off'] = array('#type' => 'textfield', '#title' => t('Text off'),
+      '#default_value' => $s['google']['txt_gplus_off']);
+  $form['google']['txt_gplus_on'] = array('#type' => 'textfield', '#title' => t('Text on'),
+      '#default_value' => $s['google']['txt_gplus_on']);
+  $form['google']['perma_option'] = array('#type' => 'select', '#title' => t('Perma option'),
+      '#default_value' => $s['google']['perma_option'],
+      '#options' => array('on'=>'on', 'off'=>'off'));
+  $form['google']['display_name'] = array('#type' => 'textfield', '#title' => t('Display name'),
+      '#default_value' => $s['google']['display_name']);
+  $form['google']['referrer_track'] = array('#type' => 'textfield', '#title' => t('Referrer track'),
+      '#default_value' => $s['google']['referrer_track']);
+  $form['google']['language'] = array('#type' => 'textfield', '#title' => t('Language'),
+      '#default_value' => $s['google']['language']);
+
+  $form['submit'] = array('#type' => 'submit', '#value' => 'Save settings');
+  $form['#submit'] = array('safe4social_admin_submit');
+
+  return $form;
+}
+
+
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Manipulates node-form and node-type-form.
+ */
+function safe4social_form_alter(&$form, $form_state, $form_id){
+  switch ($form['#id']) {
+
+    case "node-type-form":
+      $n_t = $form['#node_type']->type;
+      $s = Safe4SocialSettings::get();
+      $default = FALSE;
+      // is it enabled allready?
+      if (in_array($n_t, $s['enabled_node_types'])) {
+          $default = TRUE;
+      }
+      $form['safe4social'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Save 4 Social'),
+        '#weight' => 5,
+        '#collapsible' => true,
+        '#collapsed' => true
+        );
+      $form['safe4social']['safe4social_enabled'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('enable safe4social for this node type'),
+        '#default_value' => $default
+        );
+      // adding a submit function
+      array_push($form['#submit'],'safe4social_admin_submit');
+      break;
+
+    case "node-form":
+      $form['safe4social'] = array('#type' => 'fieldset', '#title' => t('Save 4 Social'), 
+      '#weight' => 8, '#collapsible' => true, '#collapsed' => true);
+      
+      $s = Safe4SocialSettings::get();
+      // is the node an exception?
+      if ($form['nid']['#value'] == NULL){ 
+        $except = FALSE;
+      } else if (in_array($form['nid']['#value'], $s['excepts']['enabled'])){
+        $except = 'enabled';
+      } else if (in_array($form['nid']['#value'], $s['excepts']['disabled'])){
+        $except = 'disabled';
+      }
+
+      $n_t = $form['type']['#value'];
+      // is the node type enabled?
+      if (in_array($n_t, $s['enabled_node_types'])) {
+        $default = 'on';
+        if ($except == 'disabled'){
+          $default = 'off';
+        }
+        $description_part = 'enabled';
+      } else {
+        $default = 'off';
+        if ($except == 'enabled'){ 
+          $default = 'on';
+        }
+        $description_part = 'disabled';
+      }
+      $form['safe4social']['safe4social_enable'] = array('#type' => 'select', 
+        '#title' => t('Enable safe4social for this node'),
+        '#description' => t('Nodes of this content type are ' . $description_part .
+          ' by default in the node type settings.'),
+        '#options' => array('on'=>'On','off'=>'Off'), '#default_value' => $default);
+      break;
+  }
+}
+
+
+
+/**
+ * Form submission handler.
+ * 
+ * For the safe4social-admin form as well as
+ * an additional handler for the node-type-form.
+ *
+ * The handler updates the general settings. 
+ */
+
+function safe4social_admin_submit($form, &$form_state) {
+  
+  $s = Safe4SocialSettings::get();
+  switch ($form['#id']) {
+
+    case 'node-type-form': 
+      // update enabled node types in settings
+      if ($form['safe4social']['safe4social_enabled']['#value']){
+          $s['enabled_node_types'][$form['#node_type']->type] = $form['#node_type']->type;
+      } else {
+          unset($s['enabled_node_types'][$form['#node_type']->type]);
+      }
+      break;
+   
+    case 'safe4social-admin':
+      // handle the general settings
+      foreach ($form['#post']['gen'] as $k => $v) {
+          $s['js_other_settings'][$k] = $v;
+      }
+      foreach ($form['#post']['facebook'] as $k => $v) {
+          $s['facebook'][$k] = $v;
+      }
+      foreach ($form['#post']['twitter'] as $k => $v) {
+          $s['twitter'][$k] = $v;
+      }
+      foreach ($form['#post']['google'] as $k => $v) {
+          $s['google'][$k] = $v;
+      }
+      $s['outputtype'] = $form['#post']['outputtype']['outputtypeselect'];
+      break;
+  }
+
+  Safe4SocialSettings::set($s);
+}
+
+
+
+/**
+ * Implements hook_nodeapi().
+ * 
+ * Acts on following nodeapi operations:
+ * - ($op == 'view')
+ *   - regulates the appearance of the widget
+ * - ($op == 'insert') || ($op == 'update')
+ *   - updates the per node exceptional settings that 
+ *     differ from the node-type settings
+ */
+function safe4social_nodeapi(&$node, $op, $a3, $a4){
+
+  if ($op == 'view'){ 
+    $s = Safe4SocialSettings::get();
+    $output = FALSE;
+
+    // Is the node type enabled? OR
+    // Is the node a positive exception?
+    if ((in_array($node->type, $s['enabled_node_types'])) ||
+        (in_array($node->nid, $s['excepts']['enabled']))) {
+      $output = TRUE;
+    }
+
+    // Is it a negative exception? OR
+    // Is it a teaser view AND it's not allowed for teasers?
+    if ((in_array($node->nid, $s['excepts']['disabled'])) ||
+        (($a3 == TRUE) && ($s['outputtype'] == 'fullnode_only'))) {
+      $output = FALSE;
+    }
+
+    if ($output){
+      drupal_add_js(drupal_get_path('module','safe4social').'/jquery.socialshareprivacy.js');
+      drupal_add_js(drupal_get_path('module','safe4social').'/safe4social.js');
+      drupal_add_js(array('safe4social' => array($s)),'setting');   
+      // absolute path for having more than one sharable node on a page
+      $path = '/'.$node->path;
+
+      // Is the variable $node->safe4social in node.tpl.php to be placed manually
+      // or is the $node->content constructed automatically by Drupal?
+      if ($s['outputtype'] == 'theme_manually'){
+        $node->safe4social = '<div class="safe4social" data-path="'.$path.'"></div>';
+      } else {
+        $node->content['safe4social'] = array('#value'=>'<div class="safe4social" data-path="'.$path.'"></div>','#weight'=>999);
+      }
+    }
+  }
+
+  if (($op == 'insert') || ($op == 'update')){
+    $s = Safe4SocialSettings::get();
+
+    // nodetype enabled?
+    $n_t_is = FALSE;
+    if (in_array($node->type, $s['enabled_node_types'])){
+      $n_t_is = TRUE;
+    }
+    // node enabled?
+    $n_is = FALSE;
+    if ($node->safe4social_enable == 'on'){
+      $n_is = TRUE;
+    }
+
+    // If node setting differs from it's nodetype setting
+    // then add a positive or negative exception while cleaning up the opposite.
+    // If it does not differ - try to clean up as well.
+    if (($n_t_is) && (!$n_is)){
+      $s['excepts']['disabled'][$node->nid] = $node->nid;
+      unset($s['excepts']['enabled'][$node->nid]);
+    } else if ((!$n_t_is) && ($n_is)){
+      $s['excepts']['enabled'][$node->nid] = $node->nid;
+      unset($s['excepts']['disabled'][$node->nid]);
+    } else {
+      unset($s['excepts']['disabled'][$node->nid]);
+      unset($s['excepts']['enabled'][$node->nid]);
+    }
+    Safe4SocialSettings::set($s);
+  }
+}
+
+
+
+/**
+ * Stores, retrieves settings and provides default settings.
+ */
+class Safe4SocialSettings {
+  
+  /**
+   * The data structure and default settings.
+   */
+  public static $var_model = array(
+      'outputtype' => 'fullnode_and_teaser',
+      'enabled_node_types' => array(),
+      'excepts' => array('enabled' => array(), 'disabled' => array()),
+      'facebook' => array(
+          'status' => 'on',
+          'dummy_img' => '/socialshareprivacy/images/dummy_facebook.png',
+          'txt_info' => 'Facebook',
+          'txt_fb_off' => 'nicht mit Facebook verbunden',
+          'txt_fb_on' => 'mit Facebook verbunden',
+          'perma_option' => 'on',
+          'display_name' => 'Facebook',
+          'referrer_track' => '',
+          'language' => 'de_DE',
+          'action' => 'recommend'),
+      'twitter' => array(
+          'status' => 'on',
+          'dummy_img' => '/socialshareprivacy/images/dummy_twitter.png',
+          'txt_info' => 'Twitter',
+          'txt_twitter_off' => 'nicht mit Twitter verbunden',
+          'txt_twitter_on' => 'mit Twitter verbunden',
+          'perma_option' => 'on',
+          'display_name' => 'Twitter',
+          'referrer_track' => '',
+          'language' => 'en'),
+      'google' => array(
+          'status' => 'on',
+          'dummy_img' => '/socialshareprivacy/images/dummy_gplus.png',
+          'txt_info' => 'Google+',
+          'txt_gplus_off' => 'nicht mit Google+ verbunden',
+          'txt_gplus_on' => 'mit Google+ verbunden',
+          'perma_option' => 'on',
+          'display_name' => 'Google+',
+          'referrer_track' => '',
+          'language' => 'de'),
+      'js_other_settings' => array(
+          'info_link' => 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html',
+          'txt_help' => 'info',
+          'settings_perma' => 'Dauerhaft aktivieren und Datenüber­tragung zustimmen',
+          'cookie_expires' => 365,
+          'css_path' => '/socialshareprivacy/socialshareprivacy.css')
+  );
+  
+  private static function init_get_relative_paths(){
+    $s = self::$var_model;
+    $s['facebook']['dummy_img'] = '/' . drupal_get_path('module','safe4social') . $s['facebook']['dummy_img'];
+    $s['twitter']['dummy_img'] = '/' . drupal_get_path('module','safe4social') . $s['twitter']['dummy_img'];
+    $s['google']['dummy_img'] = '/' . drupal_get_path('module','safe4social') . $s['google']['dummy_img'];
+    $s['js_other_settings']['css_path'] = '/' . drupal_get_path('module','safe4social') . $s['js_other_settings']['css_path'];
+    return $s;
+  } 
+
+  /**
+   * Returns the settings.
+   */
+  public static function get(){
+    $settings = variable_get('safe4social', 'not_set');
+    if ($settings == 'not_set'){
+      return self::init_get_relative_paths();
+    }
+    return $settings;
+  }
+
+  /**
+   * Set the database variable and refreshes cache
+   *
+   * @param array $settings
+   *   An array of settings that was best retrieved via Safe4SocialSettings::get()
+   */
+  public static function set($settings){
+    return variable_set('safe4social', $settings);
+  }
+}

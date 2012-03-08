@@ -1,0 +1,22 @@
+<?php
+
+//
+// implementation of hook_install()
+//
+
+function safe4social_install() {
+  // nothing to do here
+}
+
+
+
+//
+// implementation of hook_uninstall()
+//
+
+function safe4social_uninstall() {
+  // clean up variable
+  variable_del('safe4social');
+}
+
+?>
